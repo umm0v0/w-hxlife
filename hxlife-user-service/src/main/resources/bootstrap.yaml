@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: hxlife-user-service
+  cloud:
+    sentinel:
+      transport:
+        dashboard: localhost:8090
+        port: 8090
+    nacos:
+      discovery:
+        server-addr: 192.168.83.139:8848
+      config:
+        file-extension: yaml
+        shared-configs:
+          - data-id: shared-redis.yaml
+            group: hxlife
+            refresh: true
+          - data-id: shared-mysql.yaml
+            group: hxlife
+            refresh: true
+          - data-id: shared-knife4j.yaml
+            group: hxlife
+            refresh: true
+          - data-id: shared-other.yaml
+            group: hxlife
+            refresh: true
+          - data-id: shared-seata.yaml
+            group: hxlife
+            refresh: true
+        server-addr: 192.168.83.139:8848
+        group: hxlife
+
+

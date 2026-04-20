@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="hxlife-user-service" />
+        <module name="hxlife" />
+        <module name="hxlife-common" />
+        <module name="hxlife-blog-service" />
+        <module name="hxlife-api" />
+        <module name="hxlife-gateway" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="hxlife" options="-parameters" />
+      <module name="hxlife-api" options="-parameters" />
+      <module name="hxlife-blog-service" options="-parameters" />
+      <module name="hxlife-common" options="-parameters" />
+      <module name="hxlife-gateway" options="-parameters" />
+      <module name="hxlife-user-service" options="-parameters" />
+    </option>
+  </component>
+</project>

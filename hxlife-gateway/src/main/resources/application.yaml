@@ -1,0 +1,36 @@
+server:
+  port: 8080
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.83.139:8848
+    gateway:
+      routes:
+        - id: hxlife-user-service
+          uri: lb://hxlife-user-service
+          predicates:
+            - Path=/user/**
+
+        - id: hxlife-blog-service
+          uri: lb://hxlife-blog-service
+          predicates:
+            - Path=/blog/**,/blog-comments/**,/follow/**,/shop/**,/shop-type/**,/voucher/**,/upload/**
+
+w:
+  auth:
+    exclude-paths:
+      - /user/code
+      - /user/login
+      - /shop/**
+      - /shop-type/**
+      - /voucher/**
+      - /upload/**
+      - /blog/hot
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /swagger-resources/**
+      - /webjars/**
+      - /favicon.ico
+      - /doc.html
+      - /error

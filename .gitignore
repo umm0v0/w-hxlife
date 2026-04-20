@@ -1,0 +1,22 @@
+# 编译后的二进制文件
+target/
+*.class
+
+# IDEA 配置文件
+.idea/
+*.iml
+
+# 日志文件
+logs/
+*.log
+
+# 系统/临时文件
+.DS_Store
+Thumbs.db
+
+# Seata/Nacos 产生的临时缓存
+sessionStore/
+data/
+
+# 之前的单体项目
+w-hxlife/
