@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -18,10 +19,12 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
+@Order(0)
 @EnableConfigurationProperties(AuthProperties.class)
 public class AuthGlobalFilter implements GlobalFilter {
 
@@ -32,35 +35,39 @@ public class AuthGlobalFilter implements GlobalFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
-        //判断是否有排除的路径
-        if(isExclude(request.getPath().toString())){
-            return  chain.filter(exchange);
+        String path=request.getPath().toString();
+        boolean isPath=isExclude(path);
+        String token=request.getHeaders().getFirst("Authorization");
+        if(StrUtil.isBlank(token)){
+            if(isPath){
+                return chain.filter(exchange);
+            }
+            return  unauthorized(exchange);
         }
-        //如果没有那就是传统操作
-        String token=null;
-        List<String> authorization = request.getHeaders().get("authorization");
-        if(CollUtil.isEmpty(authorization)){
-            response.setRawStatusCode(401);
-            return response.setComplete();
-        }
-        //如果有，需要把登录信息塞进请求头
-        token=authorization.get(0);
+        //如果有token的话
         String key="login:token:"+token;
         Map<Object, Object> entries = stringRedisTemplate.opsForHash().entries(key);
-        String userId = entries.get("id").toString();
-
-        //如果token过期
-        if(StrUtil.isBlank(userId)){
-            response.setRawStatusCode(401);
-            return response.setComplete();
+        //判断是否过期
+        if(entries==null||entries.isEmpty()){
+            //token过期
+            return unauthorized(exchange);
         }
-        //把userId塞进请求头
-        request.mutate().header("user-info",userId).build();
-        return chain.filter(exchange);
+        //token有效
+        stringRedisTemplate.expire(key,30L,TimeUnit.MINUTES);
+        String userId=entries.get("id").toString();
+        return chain.filter(
+                exchange.mutate().
+                        request(builder -> builder.header("user-info",userId)).
+                        build()
+        );
 
 
 
-
+    }
+    private Mono<Void> unauthorized(ServerWebExchange exchange) {
+        ServerHttpResponse response = exchange.getResponse();
+        response.setRawStatusCode(401);
+        return response.setComplete();
     }
 
     private boolean isExclude(String path) {
